@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  falcon-training:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: falcon-7b-training
+    volumes:
+      - ../data:/app/data
+      - ../models:/app/models
+      - ../logs:/app/logs
+      - ../results:/app/results
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      - mlflow
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - falcon-network
+
+  mlflow:
+    image: python:3.10-slim
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../mlruns:/mlruns
+      - ../mlflow.db:/mlflow.db
+    command: >
+      bash -c "
+        pip install mlflow[extras] &&
+        mlflow server 
+          --backend-store-uri sqlite:///mlflow.db 
+          --default-artifact-root /mlruns 
+          --host 0.0.0.0 
+          --port 5000
+      "
+    networks:
+      - falcon-network
+
+  tensorboard:
+    image: tensorflow/tensorflow:latest
+    container_name: tensorboard-server
+    ports:
+      - "6006:6006"
+    volumes:
+      - ../logs:/logs
+    command: tensorboard --logdir=/logs --host=0.0.0.0 --port=6006
+    networks:
+      - falcon-network
+
+  jupyter:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: jupyter-notebook
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../:/app
+    command: >
+      bash -c "
+        pip install jupyter &&
+        jupyter notebook 
+          --ip=0.0.0.0 
+          --port=8888 
+          --no-browser 
+          --allow-root 
+          --NotebookApp.token='' 
+          --NotebookApp.password=''
+      "
+    networks:
+      - falcon-network
+
+  api-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: falcon-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../models:/app/models
+    command: python scripts/api_server.py
+    depends_on:
+      - falcon-training
+    networks:
+      - falcon-network
+
+networks:
+  falcon-network:
+    driver: bridge
+
+volumes:
+  mlruns:
+  models:
+  data:
+  logs: 

@@ -1,0 +1,54 @@
+stages:
+  data_preparation:
+    cmd: python scripts/prepare_data.py --config configs/data/guanaco.yaml --output data/processed/
+    deps:
+    - scripts/prepare_data.py
+    - configs/data/guanaco.yaml
+    outs:
+    - data/processed/train_dataset
+    - data/processed/eval_dataset
+    metrics:
+    - data/processed/data_stats.json
+    
+  training:
+    cmd: python scripts/train.py --config configs/training/default.yaml --model-config configs/model/falcon-7b.yaml --data-config configs/data/guanaco.yaml
+    deps:
+    - scripts/train.py
+    - configs/training/default.yaml
+    - configs/model/falcon-7b.yaml
+    - configs/data/guanaco.yaml
+    - data/processed/train_dataset
+    - data/processed/eval_dataset
+    outs:
+    - models/checkpoints/
+    - models/final/
+    metrics:
+    - results/metrics.json
+    plots:
+    - results/training_curves.json
+    
+  evaluation:
+    cmd: python scripts/evaluate.py --model-path models/final/ --config configs/training/default.yaml
+    deps:
+    - scripts/evaluate.py
+    - models/final/
+    - configs/training/default.yaml
+    - data/processed/eval_dataset
+    metrics:
+    - results/evaluation_metrics.json
+    plots:
+    - results/evaluation_plots.json
+
+plots:
+  - results/training_curves.json:
+      x: epoch
+      y:
+        - train_loss
+        - eval_loss
+      title: "Training and Validation Loss"
+      
+  - results/evaluation_plots.json:
+      template: confusion_matrix
+      x: actual
+      y: predicted
+      title: "Model Performance" 

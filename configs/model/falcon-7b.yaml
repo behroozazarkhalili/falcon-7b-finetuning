@@ -1,0 +1,24 @@
+model:
+  name: "tiiuae/falcon-7b"
+  trust_remote_code: true
+  device_map: "auto"
+  
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_use_double_quant: true
+
+lora:
+  lora_alpha: 16
+  lora_dropout: 0.1
+  r: 64
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules:
+    - "query_key_value"
+
+tokenizer:
+  name: "tiiuae/falcon-7b"
+  trust_remote_code: true
+  pad_token_strategy: "eos"  # Use EOS token as pad token 

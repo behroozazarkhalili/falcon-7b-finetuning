@@ -1,0 +1,33 @@
+dataset:
+  name: "timdettmers/openassistant-guanaco"
+  split: "train"
+  text_field: "text"
+  
+  # Data preprocessing
+  max_length: 512
+  truncation: true
+  padding: "max_length"
+  
+  # Data validation
+  min_length: 10
+  max_samples: null  # Use all samples, set to number for subset
+  
+  # Data augmentation (optional)
+  augmentation:
+    enabled: false
+    techniques: []
+    
+# Data schema validation
+schema:
+  required_fields:
+    - "text"
+  field_types:
+    text: "string"
+    
+# Data quality checks
+quality_checks:
+  check_duplicates: true
+  check_empty_text: true
+  check_encoding: true
+  min_text_length: 10
+  max_text_length: 2048 

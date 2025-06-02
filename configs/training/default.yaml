@@ -1,0 +1,53 @@
+training:
+  output_dir: "./results"
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  optim: "paged_adamw_32bit"
+  save_steps: 100
+  logging_steps: 10
+  learning_rate: 2e-4
+  fp16: true
+  max_grad_norm: 0.3
+  num_train_epochs: 5
+  warmup_ratio: 0.03
+  lr_scheduler_type: "constant"
+  max_seq_length: 512
+  packing: true
+  
+  # Early stopping
+  early_stopping_patience: 3
+  early_stopping_threshold: 0.001
+  
+  # Checkpointing
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  
+  # Evaluation
+  evaluation_strategy: "steps"
+  eval_steps: 50
+  
+  # Logging and monitoring
+  report_to: ["mlflow", "tensorboard"]
+  logging_dir: "./logs"
+  
+  # Reproducibility
+  seed: 42
+  data_seed: 42
+
+# Data configuration
+data:
+  train_split: 0.9
+  eval_split: 0.1
+  shuffle: true
+  
+# Experiment tracking
+experiment:
+  name: "falcon-7b-finetuning"
+  tags:
+    - "falcon-7b"
+    - "qlora"
+    - "instruction-tuning"
+  description: "Fine-tuning Falcon-7B with QLoRA on instruction dataset" 
