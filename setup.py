@@ -1,7 +1,8 @@
 """Setup script for Falcon-7B Fine-tuning Project."""
 
-from setuptools import setup, find_packages
 from pathlib import Path
+
+from setuptools import find_packages, setup
 
 # Read README
 this_directory = Path(__file__).parent
@@ -10,7 +11,9 @@ long_description = (this_directory / "README.md").read_text()
 # Read requirements
 requirements = []
 with open("requirements.txt") as f:
-    requirements = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    requirements = [
+        line.strip() for line in f if line.strip() and not line.startswith("#")
+    ]
 
 setup(
     name="falcon-7b-finetuning",
@@ -62,4 +65,4 @@ setup(
     },
     include_package_data=True,
     zip_safe=False,
-) 
+)
