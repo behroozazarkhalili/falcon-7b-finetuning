@@ -167,7 +167,7 @@ wandb/
 tensorboard_logs/
 
 # API Keys and secrets
-api-keys.txt
+secrets/
 .env
 secrets.yaml
 config/secrets/
@@ -212,4 +212,9 @@ temp/
 # Hugging Face cache
 .cache/
 transformers_cache/
-huggingface_hub/ 
+huggingface_hub/
+
+# Project-specific files to ignore
+# Original notebook and script files
+001_Fine_tuning_and_Inference_with_Falcon_7B_using_TRL_and_QLoRa.py
+001_Fine_tuning_and_Inference_with_Falcon_7B_using_TRL_and_QLoRa.ipynb 

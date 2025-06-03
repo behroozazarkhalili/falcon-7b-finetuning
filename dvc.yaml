@@ -1,9 +1,9 @@
 stages:
   data_preparation:
-    cmd: python scripts/prepare_data.py --config configs/data/guanaco.yaml --output data/processed/
+    cmd: python scripts/prepare_data.py --config configs/data/data.yaml --output data/processed/
     deps:
     - scripts/prepare_data.py
-    - configs/data/guanaco.yaml
+    - configs/data/data.yaml
     outs:
     - data/processed/train_dataset
     - data/processed/eval_dataset
@@ -11,12 +11,12 @@ stages:
     - data/processed/data_stats.json
     
   training:
-    cmd: python scripts/train.py --config configs/training/default.yaml --model-config configs/model/falcon-7b.yaml --data-config configs/data/guanaco.yaml
+    cmd: python scripts/train.py --config configs/training/default.yaml --model-config configs/model/model.yaml --data-config configs/data/data.yaml
     deps:
     - scripts/train.py
     - configs/training/default.yaml
-    - configs/model/falcon-7b.yaml
-    - configs/data/guanaco.yaml
+    - configs/model/model.yaml
+    - configs/data/data.yaml
     - data/processed/train_dataset
     - data/processed/eval_dataset
     outs:

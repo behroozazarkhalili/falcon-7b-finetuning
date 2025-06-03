@@ -64,13 +64,18 @@ class FalconModel(BaseModel):
         """
         lora_config = self.config.lora
         
+        # Convert target_modules to native Python list to avoid JSON serialization issues
+        target_modules = lora_config.get("target_modules", ["query_key_value"])
+        if hasattr(target_modules, '__iter__') and not isinstance(target_modules, str):
+            target_modules = list(target_modules)
+        
         peft_config = LoraConfig(
             lora_alpha=lora_config.get("lora_alpha", 16),
             lora_dropout=lora_config.get("lora_dropout", 0.1),
             r=lora_config.get("r", 64),
             bias=lora_config.get("bias", "none"),
             task_type=lora_config.get("task_type", "CAUSAL_LM"),
-            target_modules=lora_config.get("target_modules", ["query_key_value"]),
+            target_modules=target_modules,
         )
         
         self.logger.info(f"Created LoRA config: {peft_config}")

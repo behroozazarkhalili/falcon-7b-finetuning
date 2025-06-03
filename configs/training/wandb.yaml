@@ -29,8 +29,8 @@ training:
   eval_strategy: "steps"
   eval_steps: 50
   
-  # Logging and monitoring
-  report_to: "tensorboard"
+  # Logging and monitoring - Using wandb
+  report_to: ["wandb", "tensorboard"]
   logging_dir: "./logs"
   
   # Reproducibility
@@ -50,4 +50,36 @@ experiment:
     - "falcon-7b"
     - "qlora"
     - "instruction-tuning"
-  description: "Fine-tuning Falcon-7B with QLoRA on instruction dataset" 
+  description: "Fine-tuning Falcon-7B with QLoRA on instruction dataset"
+
+# Wandb configuration
+wandb:
+  project: "falcon-7b-finetuning"
+  entity: null  # Set to your wandb username/team
+  name: null    # Will use experiment.name if not set
+  tags: null    # Will use experiment.tags if not set
+  notes: null   # Will use experiment.description if not set
+  group: "falcon-7b-experiments"
+  job_type: "fine-tuning"
+  
+  # Wandb settings
+  settings:
+    save_code: true
+    log_model: true
+    log_artifacts: true
+    watch_model: true
+    watch_freq: 100
+    
+  # What to log
+  log:
+    gradients: false
+    parameters: true
+    model_topology: true
+    system_metrics: true
+    
+  # Artifact logging
+  artifacts:
+    log_model_checkpoints: true
+    log_final_model: true
+    log_dataset_info: true
+    log_config: true 

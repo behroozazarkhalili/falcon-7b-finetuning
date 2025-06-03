@@ -10,7 +10,7 @@ A production-ready ML engineering project for fine-tuning Falcon-7B using QLoRA 
 - **Comprehensive Testing**: Unit tests for all components
 - **CI/CD Pipeline**: Automated testing and deployment
 - **Data Versioning**: DVC integration for dataset management
-- **Monitoring & Logging**: MLflow integration for experiment tracking
+- **Monitoring & Logging**: MLflow and Wandb integration for experiment tracking
 - **Type Safety**: Full type hints and validation
 
 ## 📁 Project Structure
@@ -24,11 +24,12 @@ falcon-7b-finetuning/
 │       └── model-training.yml
 ├── configs/
 │   ├── model/
-│   │   └── falcon-7b.yaml
+│   │   └── model.yaml
 │   ├── training/
-│   │   └── default.yaml
+│   │   ├── default.yaml
+│   │   └── wandb.yaml
 │   └── data/
-│       └── guanaco.yaml
+│       └── data.yaml
 ├── src/
 │   ├── __init__.py
 │   ├── data/
@@ -53,7 +54,8 @@ falcon-7b-finetuning/
 │       ├── __init__.py
 │       ├── config.py
 │       ├── logging.py
-│       └── reproducibility.py
+│       ├── reproducibility.py
+│       └── wandb_utils.py
 ├── tests/
 │   ├── __init__.py
 │   ├── test_data/
@@ -62,6 +64,7 @@ falcon-7b-finetuning/
 │   └── test_utils/
 ├── scripts/
 │   ├── train.py
+│   ├── train_with_wandb.py
 │   ├── evaluate.py
 │   ├── inference.py
 │   └── setup_environment.py
@@ -139,8 +142,28 @@ falcon-7b-finetuning/
 
 ### Training
 
+#### Basic Training
 ```bash
 python scripts/train.py --config configs/training/default.yaml
+```
+
+#### Training with Wandb
+```bash
+# Using the dedicated wandb script
+python scripts/train_with_wandb.py --wandb-project "my-falcon-project" --wandb-entity "my-username"
+
+# Or using the main script with wandb config
+python scripts/train.py --config configs/training/wandb.yaml --wandb-project "my-falcon-project"
+```
+
+#### Training with Custom Configuration
+```bash
+python scripts/train.py \
+    --config configs/training/wandb.yaml \
+    --model-config configs/model/model.yaml \
+    --data-config configs/data/data.yaml \
+    --experiment-name "my-experiment" \
+    --wandb-project "my-project"
 ```
 
 ### Evaluation
@@ -153,6 +176,64 @@ python scripts/evaluate.py --model-path models/final/falcon-7b-finetuned --confi
 
 ```bash
 python scripts/inference.py --model-path models/final/falcon-7b-finetuned --prompt "Your prompt here"
+```
+
+## 📊 Experiment Tracking
+
+### Wandb Integration
+
+The project includes comprehensive Wandb integration for experiment tracking:
+
+#### Features:
+- **Automatic experiment logging**: Model info, system info, and hyperparameters
+- **Real-time metrics tracking**: Training and validation metrics
+- **Model artifact logging**: Checkpoints and final models
+- **Code versioning**: Automatic code snapshot
+- **System monitoring**: GPU usage, memory, and system metrics
+
+#### Configuration:
+```yaml
+# configs/training/wandb.yaml
+wandb:
+  project: "falcon-7b-finetuning"
+  entity: "your-username"  # Set to your wandb username/team
+  group: "falcon-7b-experiments"
+  job_type: "fine-tuning"
+  
+  settings:
+    save_code: true
+    log_model: true
+    watch_model: true
+    watch_freq: 100
+    
+  artifacts:
+    log_model_checkpoints: true
+    log_final_model: true
+    log_dataset_info: true
+```
+
+#### Setup Wandb:
+1. **Install wandb** (already included in requirements):
+   ```bash
+   pip install wandb
+   ```
+
+2. **Login to wandb**:
+   ```bash
+   wandb login
+   ```
+
+3. **Run training with wandb**:
+   ```bash
+   python scripts/train_with_wandb.py --wandb-project "my-project"
+   ```
+
+#### Environment Variables:
+```bash
+# Optional: Set wandb environment variables
+export WANDB_PROJECT="falcon-7b-finetuning"
+export WANDB_ENTITY="your-username"
+export WANDB_SILENT="true"  # Disable prompts in non-interactive environments
 ```
 
 ### Configuration
@@ -176,6 +257,7 @@ training:
   learning_rate: 2e-4
   num_train_epochs: 5
   max_seq_length: 512
+  report_to: ["wandb", "tensorboard"]  # Enable both wandb and tensorboard
 ```
 
 ## 🧪 Testing
@@ -189,13 +271,15 @@ Run specific test categories:
 ```bash
 pytest tests/test_models/ -v
 pytest tests/test_data/ -v
+pytest tests/test_utils/test_wandb_utils.py -v  # Test wandb integration
 ```
 
 ## 📊 Monitoring
 
+- **Wandb**: Track experiments at your wandb dashboard
 - **MLflow**: Track experiments at `http://localhost:5000`
+- **TensorBoard**: View training logs with `tensorboard --logdir logs/`
 - **Logs**: Check `logs/` directory for detailed training logs
-- **Metrics**: Model performance metrics are logged automatically
 
 ## 🔄 CI/CD
 
@@ -229,4 +313,54 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Hugging Face for the Transformers library
 - TRL team for the training framework
-- Falcon team for the base model 
+- Falcon team for the base model
+- Wandb for experiment tracking platform
+
+## Quick Start
+
+### Option 1: Using the Training Scripts (Recommended)
+
+We provide multiple convenient scripts to run the training:
+
+#### Full Training Script (with checks and logging)
+```bash
+./run_training.sh
+```
+
+#### Quick Training Script (minimal)
+```bash
+./quick_train.sh
+```
+
+#### Wandb-enabled Training
+```bash
+python scripts/train_with_wandb.py --wandb-project "my-project" --wandb-entity "my-username"
+```
+
+### Option 2: Manual Execution
+
+1. **Activate the environment:**
+```bash
+conda activate behrooz  # or your environment name
+```
+
+2. **Install the project:**
+```bash
+pip install -e .
+```
+
+3. **Run training:**
+```bash
+# Basic training
+python scripts/train.py \
+    --config configs/training/default.yaml \
+    --model-config configs/model/model.yaml \
+    --data-config configs/data/data.yaml
+
+# Training with wandb
+python scripts/train.py \
+    --config configs/training/wandb.yaml \
+    --model-config configs/model/model.yaml \
+    --data-config configs/data/data.yaml \
+    --wandb-project "my-project"
+``` 
