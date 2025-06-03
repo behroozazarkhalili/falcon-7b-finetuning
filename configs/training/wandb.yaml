@@ -2,32 +2,38 @@ training:
   output_dir: "./results"
   per_device_train_batch_size: 1
   per_device_eval_batch_size: 1
-  gradient_accumulation_steps: 4
+  gradient_accumulation_steps: 16
   optim: "paged_adamw_32bit"
   save_steps: 100
   logging_steps: 10
   learning_rate: 2e-4
   fp16: true
   max_grad_norm: 0.3
-  num_train_epochs: 5
+  num_train_epochs: 1
   warmup_ratio: 0.03
   lr_scheduler_type: "constant"
-  max_seq_length: 512
-  packing: true
+  max_seq_length: 256
+  packing: false
+  
+  # Memory optimization
+  gradient_checkpointing: true
+  dataloader_pin_memory: false
+  remove_unused_columns: true
+  dataloader_num_workers: 0
   
   # Early stopping
   early_stopping_patience: 3
   early_stopping_threshold: 0.001
   
   # Checkpointing
-  save_total_limit: 3
-  load_best_model_at_end: true
+  save_total_limit: 1
+  load_best_model_at_end: false
   metric_for_best_model: "eval_loss"
   greater_is_better: false
   
   # Evaluation
   eval_strategy: "steps"
-  eval_steps: 50
+  eval_steps: 200
   
   # Logging and monitoring - Using wandb
   report_to: ["wandb", "tensorboard"]

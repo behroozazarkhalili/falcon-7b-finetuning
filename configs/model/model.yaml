@@ -1,7 +1,7 @@
 model:
   name: "tiiuae/falcon-7b"
   trust_remote_code: true
-  device_map: "auto"
+  device_map: {"": 0}  # Force single GPU usage more explicitly
   
 quantization:
   load_in_4bit: true
@@ -12,7 +12,7 @@ quantization:
 lora:
   lora_alpha: 16
   lora_dropout: 0.1
-  r: 64
+  r: 16  # Further reduced from 32 to save memory
   bias: "none"
   task_type: "CAUSAL_LM"
   target_modules:
