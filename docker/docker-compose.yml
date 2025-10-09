@@ -27,7 +27,7 @@ services:
       - falcon-network
 
   mlflow:
-    image: python:3.10-slim
+    image: python:3.14-slim
     container_name: mlflow-server
     ports:
       - "5000:5000"
